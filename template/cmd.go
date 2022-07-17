@@ -1,7 +1,15 @@
 package template
 
-func RootCmd() []byte {
-	return []byte(`
+import "text/template"
+
+var CmdMap = map[string]*template.Template{
+	"root":   template.Must(template.New("root").Parse(RootCmd())),
+	"server": template.Must(template.New("server").Parse(ServerCmd())),
+}
+
+// RootCmd projectDir/cmd/root.go
+func RootCmd() string {
+	return `
 package cmd
 
 import (
@@ -48,11 +56,12 @@ func initConfig() {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
 }
-`)
+`
 }
 
-func ServerCmd() []byte {
-	return []byte(`
+// ServerCmd projectDir/cmd/server.go
+func ServerCmd() string {
+	return `
 package cmd
 
 import (
@@ -98,5 +107,5 @@ func InitWorker() {
 func init() {
 	rootCmd.AddCommand(serveCmd)
 }
-`)
+`
 }

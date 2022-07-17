@@ -1,7 +1,14 @@
 package template
 
-func Internal() []byte {
-	return []byte(`
+import "text/template"
+
+var InternalMap = map[string]*template.Template{
+	"base": template.Must(template.New("base").Parse(Internal())),
+}
+
+// Internal projectDir/internal/base.go
+func Internal() string {
+	return `
 /*
 外部服务调用
 传递request-id,traceid等
@@ -31,5 +38,5 @@ func NewClient(c *gin.Context) *HttpClient {
 
 	return hc
 }
-`)
+`
 }

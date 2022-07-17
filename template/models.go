@@ -1,7 +1,14 @@
 package template
 
-func Models() []byte {
-	return []byte(`
+import "text/template"
+
+var ModelMap = map[string]*template.Template{
+	"model": template.Must(template.New("model").Parse(Models())),
+}
+
+// Models projectDir/model/model.go
+func Models() string {
+	return `
 package models
 
 import (
@@ -20,5 +27,5 @@ func Connect(dsn string) error {
 
 	return nil
 }
-`)
+`
 }

@@ -1,6 +1,6 @@
 package template
 
-import "html/template"
+import "text/template"
 
 var ApiMap = map[string]*template.Template{
 	"common":   template.Must(template.New("common").Parse(Common())),
