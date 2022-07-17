@@ -1,7 +1,17 @@
 package template
 
-func Common() []byte {
-	return []byte(`
+import "html/template"
+
+var ApiMap = map[string]*template.Template{
+	"common":   template.Must(template.New("common").Parse(Common())),
+	"request":  template.Must(template.New("request").Parse(Request())),
+	"response": template.Must(template.New("response").Parse(Response())),
+	"api":      template.Must(template.New("api").Parse(Api())),
+}
+
+// Common projectDir/api/common.go
+func Common() string {
+	return `
 package h
 
 import (
@@ -64,11 +74,12 @@ func MidLogger() gin.HandlerFunc {
 		}
 	}
 }
-`)
+`
 }
 
-func Request() []byte {
-	return []byte(`
+// Request projectDir/api/request.go
+func Request() string {
+	return `
 package h
 
 import "github.com/gin-gonic/gin"
@@ -83,11 +94,12 @@ func GetRequestID(c *gin.Context) string {
 	}
 	return ""
 }
-`)
+`
 }
 
-func Response() []byte {
-	return []byte(`
+// Response projectDir/api/response.go
+func Response() string {
+	return `
 package h
 
 import (
@@ -114,11 +126,12 @@ func RR(c *gin.Context, data interface{}) {
 func RE(c *gin.Context, msg string) {
 	R(c, CodeExceptionDefault, msg, nil)
 }
-` + "type Response struct {\n\tCode      int         `json:\"code\"`\n\tMessage   string      `json:\"message\"`\n\tData      interface{} `json:\"data,omitempty\"`\n\tCreatedAt time.Time   `json:\"createdAt\"`\n\tRequestID string      `json:\"requestID,omitempty\"`\n}")
+` + "type Response struct {\n\tCode      int         `json:\"code\"`\n\tMessage   string      `json:\"message\"`\n\tData      interface{} `json:\"data,omitempty\"`\n\tCreatedAt time.Time   `json:\"createdAt\"`\n\tRequestID string      `json:\"requestID,omitempty\"`\n}"
 }
 
-func Api() []byte {
-	return []byte(`
+// Api projectDir/api/api.proto
+func Api() string {
+	return `
 syntax = "proto3";
 package api;
 
@@ -142,5 +155,5 @@ message Empty {}
 message Pong {
   Pong string =1;
 }
-`)
+`
 }
