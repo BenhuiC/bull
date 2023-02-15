@@ -36,6 +36,21 @@ func (p *Project) Create() (err error) {
 		return
 	}
 
+	// package pkg
+	if err = p.createPkg(); err != nil {
+		return
+	}
+
+	// package third_party
+	if err = p.createThirdPart(); err != nil {
+		return
+	}
+
+	// common file
+	if err = p.createCommon(); err != nil {
+		return
+	}
+
 	// init go mod
 	err = p.initMod()
 	return
@@ -58,19 +73,46 @@ func (p *Project) createInternal() (err error) {
 
 func (p *Project) createModel() (err error) {
 	fmt.Println("create model dir")
-	return p.createByMap("model", template.ModelMap)
+	return p.createByMap("models", template.ModelMap)
+}
+
+func (p *Project) createPkg() (err error) {
+	fmt.Println("create pkg dir")
+	return p.createByMap("pkg", template.PkgMap)
+}
+
+func (p *Project) createThirdPart() (err error) {
+	fmt.Println("create config dir")
+	return p.createByMap("third_party", template.ThirdPartMap)
+}
+
+func (p *Project) createCommon() (err error) {
+	fmt.Println("create common file")
+	return p.createByMap("", template.CommonMap)
 }
 
 func (p *Project) createByMap(dir string, m map[string]*tpl.Template) (err error) {
+	// create dir
 	dir = filepath.Join(p.ProjectDir, dir)
-	fmt.Println("create dir ", dir)
-	if err = os.Mkdir(dir, 0755); err != nil {
+	if dir != p.ProjectDir {
+		fmt.Println("create dir ", dir)
+		err = os.Mkdir(dir, 0755)
+	}
+	if err != nil {
 		return
 	}
 
 	for k, v := range m {
 		var f *os.File
-		filePath := filepath.Join(dir, fmt.Sprintf("%s.go", k))
+		filePath := filepath.Join(dir, k)
+		fileDir := filepath.Dir(filePath)
+		if fileDir != p.ProjectDir {
+			// create file dir
+			err = os.MkdirAll(fileDir, 0755)
+		}
+		if err != nil {
+			return
+		}
 		fmt.Println("create file ", filePath)
 		if f, err = os.Create(filePath); err != nil {
 			return

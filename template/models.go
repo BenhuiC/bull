@@ -1,31 +1,13 @@
 package template
 
 import "text/template"
+import _ "embed"
 
-var ModelMap = map[string]*template.Template{
-	"model": template.Must(template.New("model").Parse(Models())),
-}
-
-// Models projectDir/model/model.go
-func Models() string {
-	return `
-package models
-
-import (
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
+var (
+	//go:embed temp/models.go.tpl
+	models string
 )
 
-var DB *gorm.DB
-
-func Connect(dsn string) error {
-	var err error
-	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-`
+var ModelMap = map[string]*template.Template{
+	"model.go": template.Must(template.New("model").Parse(models)),
 }
