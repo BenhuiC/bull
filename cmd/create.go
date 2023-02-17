@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // createCmd represents the create command
@@ -24,7 +25,7 @@ var createCmd = &cobra.Command{
 		}
 		err := initProject(projectName)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error %s", err)
+			fmt.Fprintf(os.Stderr, "Error %s\n", err)
 			os.Exit(1)
 		}
 		fmt.Printf("Create Project %s Success\n", projectName)
@@ -58,10 +59,17 @@ func initProject(projectName string) (err error) {
 		}
 	}()
 	p := Project{
-		ProjectName: projectName,
+		ProjectName: formatProjectName(projectName),
 		ProjectDir:  projectDir,
 		Wd:          wd,
 	}
 
+	// read params from stdin
+	p.ReadParam()
+
 	return p.Create()
+}
+
+func formatProjectName(projectName string) string {
+	return strings.ReplaceAll(projectName, "-", "_")
 }

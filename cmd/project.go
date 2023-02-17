@@ -1,11 +1,14 @@
 package cmd
 
 import (
+	"bufio"
 	"bull/template"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	tpl "text/template"
 )
 
@@ -13,6 +16,10 @@ type Project struct {
 	ProjectName string
 	ProjectDir  string
 	Wd          string
+	Redis       bool
+	Ceph        bool
+	ES          bool
+	Worker      bool
 }
 
 func (p *Project) Create() (err error) {
@@ -105,6 +112,7 @@ func (p *Project) createByMap(dir string, m map[string]*tpl.Template) (err error
 	for k, v := range m {
 		var f *os.File
 		filePath := filepath.Join(dir, k)
+		filePath = strings.ReplaceAll(filePath, "{{ProjectName}}", p.ProjectName)
 		fileDir := filepath.Dir(filePath)
 		if fileDir != p.ProjectDir {
 			// create file dir
@@ -138,4 +146,22 @@ func (p *Project) initMod() (err error) {
 	tidyCmd.Dir = p.ProjectDir
 	err = tidyCmd.Run()
 	return
+}
+
+func (p *Project) ReadParam() {
+	fmt.Print("use redis(y/n): ")
+	p.Redis = p.readBool(os.Stdin)
+	fmt.Print("use ceph(y/n): ")
+	p.Ceph = p.readBool(os.Stdin)
+	fmt.Print("use es(y/n): ")
+	p.ES = p.readBool(os.Stdin)
+	fmt.Print("use worker(y/n): ")
+	p.Worker = p.readBool(os.Stdin)
+}
+
+func (p *Project) readBool(r io.Reader) bool {
+	reader := bufio.NewReader(r)
+	text, _ := reader.ReadString('\n')
+	text = strings.ToLower(strings.TrimSpace(text))
+	return text == "y" || text == "yes"
 }

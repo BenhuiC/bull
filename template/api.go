@@ -20,15 +20,24 @@ var (
 	language string
 	//go:embed temp/serve.go.tpl
 	serve string
+	//go:embed temp/apipb.go.tpl
+	apiPb string
+	//go:embed temp/apiginsev.go.tpl
+	apiGin string
+	//go:embed temp/service.go.tpl
+	service string
 )
 
 var ApiMap = map[string]*template.Template{
-	"h/applogger.go":  template.Must(template.New("applogger").Parse(applogger)),
-	"h/exceptions.go": template.Must(template.New("exceptions").Parse(exceptions)),
-	"h/language.go":   template.Must(template.New("language").Parse(language)),
-	"h/common.go":     template.Must(template.New("common").Parse(common)),
-	"h/request.go":    template.Must(template.New("request").Parse(request)),
-	"h/response.go":   template.Must(template.New("response").Parse(response)),
-	"serve.go":        template.Must(template.New("serve").Parse(serve)),
-	"api.proto":       template.Must(template.New("api").Parse(api)),
+	"h/applogger.go":             template.Must(template.New("applogger").Parse(applogger)),
+	"h/exceptions.go":            template.Must(template.New("exceptions").Parse(exceptions)),
+	"h/language.go":              template.Must(template.New("language").Parse(language)),
+	"h/common.go":                template.Must(template.New("common").Parse(common)),
+	"h/request.go":               template.Must(template.New("request").Parse(request)),
+	"h/response.go":              template.Must(template.New("response").Parse(response)),
+	"serve.go":                   template.Must(template.New("serve").Parse(serve)),
+	"api.proto":                  template.Must(template.New("api").Parse(api)),
+	"proto/api.pb.go":            template.Must(template.New("apipb").Parse(apiPb)),
+	"proto/api.ginsev.go":        template.Must(template.New("apiginsev").Parse(apiGin)),
+	"{{ProjectName}}/service.go": template.Must(template.New("service").Parse(service)),
 }

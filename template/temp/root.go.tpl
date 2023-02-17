@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"{{ .ProjectName }}/pkg/config"
+	"{{ .ProjectName }}/models"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -81,7 +83,7 @@ func InitCeph() {
 
 func InitDB() {
 	logger.Info("init db")
-	if err := dbmodels.Connect(config.Cfg.Database.DB); err != nil {
+	if err := models.Connect(config.Cfg.Database.DB); err != nil {
 		panic(err)
 	}
 }
@@ -89,10 +91,6 @@ func InitDB() {
 func InitCaller() {
 	logger.Info("init caller")
 	// TODO
-}
-
-func InitTracer(serverType string) {
-	tracer.InitTracer(serverType, "marking")
 }
 
 func InitWorker() {

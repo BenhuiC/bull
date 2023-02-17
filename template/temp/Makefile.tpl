@@ -1,24 +1,42 @@
-TAG_VERSION ?= latest
-IMAGE ?= registry.sensetime.com/senseautoempower/marking:${TAG_VERSION}
+API_PROTO_FILES=$(shell find api -name *.proto)
 
-.PHONY: docker_build
-docker_build:
-	docker build -t ${IMAGE} -f docker/Dockerfile .
+.PHONY: install init api struct swagger doc
+install:
+	go install
+	protoc -I=./api \
+		   -I=./third_party \
+		   --experimental_allow_proto3_optional \
+		   --gogofaster_out=. \
+		   --ginsev_out=. \
+		   $(API_PROTO_FILES)
 
-docker_push: docker_build
-	docker push ${IMAGE}
+init:
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	go install github.com/gogo/protobuf/protoc-gen-gogofaster@latest
+	go install github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@latest
+	go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
+	go install github.com/BenhuiC/protoc-gen-ginsev@latest
 
-.PHONY: ci_build ci_deploy ci_release
-ci_build: docker_push
+api:
+	protoc --proto_path=./api \
+	       --proto_path=./third_party \
+ 	       --gogofaster_out=. \
+ 	       --ginsev_out=. \
+	       $(API_PROTO_FILES)
 
-ci_deploy:
-	helm --kubeconfig ${KUBE_CONFIG} -n ${KUBE_NS} upgrade --install 	--values ${HELM_VALUES} \
-	--set image.tag=${TAG_VERSION} \
-	marking .deploy/chart/marking
+struct:
+	protoc --proto_path=./api \
+    	   --proto_path=./third_party \
+     	   --gogofaster_out=source_relative:./api  \
+     	   $(API_PROTO_FILES)
 
-ci_release:
-	helm push --version ${CHART_VERSION} ${HELM_REPO} .deploy/chart/marking
+swagger:
+	protoc --proto_path=./api \
+           --proto_path=./third_party \
+		   --openapiv2_out . \
+		   --openapiv2_opt logtostderr=true \
+		   --openapiv2_opt json_names_for_fields=false \
+           $(API_PROTO_FILES)
 
-.PHONY: build-agent
-build-agent:
-	go build -o .build/mark-agent agent/cmd/main.go
+doc:
+	docker run -p 8081:8080 -e SWAGGER_JSON=/foo/api.swagger.json -v $(PWD):/foo swaggerapi/swagger-ui

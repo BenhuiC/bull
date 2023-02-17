@@ -1,9 +1,10 @@
 package api
 
 import (
+    "{{ .ProjectName }}/api/{{ .ProjectName }}"
 	"{{ .ProjectName }}/api/h"
+	"{{ .ProjectName }}/api/proto"
 
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,7 +14,7 @@ import (
 )
 
 func Serve(addr string) error {
-	gin.SetMode(gin.ReleaseMode)
+	//gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 
 	// generate X-Request-Id
@@ -44,13 +45,9 @@ func Serve(addr string) error {
 }
 
 func Mount(g *gin.RouterGroup) {
-	// global apis
-	g.GET("health", Health)
 	g.GET("metrics", Metrics)
-}
-
-func Health(c *gin.Context) {
-	c.String(http.StatusOK, "ok")
+	svc := &{{ .ProjectName}}.Service{}
+	proto.RegisterGentestService(g, svc)
 }
 
 func Metrics(c *gin.Context) {

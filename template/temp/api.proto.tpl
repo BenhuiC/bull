@@ -1,7 +1,7 @@
 syntax = "proto3";
 package api;
 
-option go_package="api/{{ .ProjectName }}";
+option go_package="api/proto";
 
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
